@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d9488">
+<title>디지털 뉴스 생태계 연구소 | 뉴스 M.B.T.I</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- html2canvas 라이브러리 (ID 카드 및 정화 기사 이미지 다운로드) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<!-- Pretendard 글꼴 -->
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+<style>
+  *{box-sizing:border-box}
+  body{
+    font-family:'Pretendard',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    color:#134e4a;
+    background:
+      radial-gradient(circle at 15% 12%, rgba(255,255,255,.9) 0 3%, transparent 4%),
+      radial-gradient(circle at 85% 18%, rgba(255,255,255,.75) 0 2%, transparent 3%),
+      linear-gradient(180deg,#e6fcf5 0%,#f0fdf4 42%,#ffffff 100%);
+    min-height:100svh;
+  }
+  .radar-grid { stroke: #99f6e4; stroke-width: 1; fill: none; }
+  .radar-axis { stroke: #cbd5e1; stroke-width: 1; stroke-dasharray: 2,2; }
+  .radar-polygon { fill: rgba(13, 148, 136, 0.4); stroke: #0d9488; stroke-width: 2.2; }
+  .radar-ideal { fill: none; stroke: #f59e0b; stroke-width: 1.5; stroke-dasharray: 3,3; }
+  .hidden { display: none !important; }
+
+  /* html2canvas 캡처 시 자간 겹침 및 글자 밀림 방지 */
+  #shareProfileCard, #surgeryCertCard {
+    letter-spacing: 0px !important;
+    word-break: keep-all;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+  }
+  #shareProfileCard *, #surgeryCertCard * {
+    letter-spacing: normal !important;
+  }
+  /* 취소선 제목 텍스트 분리 및 잘림 방지 */
+  #certOldTitle {
+    display: inline-block;
+    line-height: 1.4;
+    padding: 2px 0;
+  }
+</style>
+</head>
+<body class="p-3 sm:p-5 md:p-8 pb-24">
+
+<!-- 상단 타이머 바 -->
+<div class="fixed top-0 left-0 right-0 z-50 bg-teal-900 text-white px-4 py-2.5 flex items-center gap-3 shadow-md hidden" id="timerBar">
+  <span id="timerIcon" class="text-xl">⏱️</span>
+  <span class="font-extrabold text-lg tracking-wider font-mono" id="timerText">05:00</span>
+  <div class="flex-1 h-2.5 bg-teal-950/60 rounded-full overflow-hidden">
+    <div class="h-full bg-teal-300 transition-all duration-1000" id="timerFill" style="width:100%"></div>
+  </div>
+</div>
+
+<div class="max-w-4xl mx-auto mt-2">
+  <!-- 상단 네비게이션 스텝 바 -->
+  <div class="grid grid-cols-6 gap-1.5 sticky top-2 z-40 bg-white/95 backdrop-blur-md p-2 rounded-2xl border border-teal-200 shadow-sm mb-4 hidden" id="stepsBar">
+    <div class="py-1.5 text-center text-xs font-bold rounded-xl bg-teal-600 text-white" id="stepIndicator1">1 거리</div>
+    <div class="py-1.5 text-center text-xs font-bold rounded-xl bg-teal-50 text-teal-800" id="stepIndicator2">2 이유</div>
+    <div class="py-1.5 text-center text-xs font-bold rounded-xl bg-teal-50 text-teal-800" id="stepIndicator3">3 빈도</div>
+    <div class="py-1.5 text-center text-xs font-bold rounded-xl bg-teal-50 text-teal-800" id="stepIndicator4">4 경로</div>
+    <div class="py-1.5 text-center text-xs font-bold rounded-xl bg-teal-50 text-teal-800" id="stepIndicator5">5 진단</div>
+    <div class="py-1.5 text-center text-xs font-bold rounded-xl bg-teal-50 text-teal-800" id="stepIndicator6">6 결과</div>
+  </div>
+
+  <!-- [첫 화면] 초록색 연구소 테마 + 9개 동물 연구원 유형 3×3 그리드 -->
+  <section class="bg-white/95 rounded-3xl border border-teal-200 p-6 sm:p-8 md:p-10 shadow-xl shadow-teal-900/5 mb-6" id="home">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+      <div class="md:col-span-7 space-y-4">
+        <div class="inline-flex items-center gap-1.5 bg-teal-50 text-teal-800 border border-teal-200 text-xs font-bold px-3 py-1.5 rounded-full">
+          <span>🔬</span> 디지털 뉴스 생태계 연구소
+        </div>
+
+        <!-- 제목 줄바꿈 적용 -->
+        <div class="flex items-start gap-3">
+          <span class="text-4xl sm:text-5xl shrink-0 mt-1">🌱</span>
+          <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-teal-950 tracking-tight leading-tight">
+            <div>뉴스 M.B.T.I 성향 진단</div>
+            <div class="mt-1">& 오염 정화 랩</div>
+          </h1>
+        </div>
+
+        <div>
+          <span class="inline-block bg-teal-100 text-teal-800 text-xs sm:text-sm font-black px-3.5 py-1 rounded-full">
+            먼저(M) 보고(B) 따져 보며(T) 이해하기(I)
+          </span>
+        </div>
+
+        <!-- 본문 텍스트 정리 -->
+        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          알고리즘과 쏟아지는 소식 속에서 나는 어떻게 뉴스를 마주하고 있을까요? 수석 연구원이 되어 나의 뉴스 이용 습관을 진단하고, 9가지 동물 연구원 유형과 필살 무기를 획득해 오염된 기사를 직접 수술해 보세요.
+        </p>
+
+        <!-- 안내 문구 정리 -->
+        <div class="bg-teal-50/80 border border-teal-200 rounded-2xl p-4 text-xs text-teal-900 leading-snug">
+          💡 <b>안내:</b> 정답은 없습니다. 솔직하게 나의 일상 습관을 체크할수록 나에게 꼭 맞는 미디어 필살 아이템이 발급됩니다.
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <button type="button" id="startBtn" class="py-4 bg-teal-600 hover:bg-teal-700 active:scale-[0.99] text-white font-extrabold rounded-2xl text-sm shadow-md shadow-teal-700/20 transition flex items-center justify-center gap-2 cursor-pointer">
+            <span>⏱️</span> 5분 집중 진단 시작
+          </button>
+          <button type="button" id="startNoTimerBtn" class="py-4 bg-white hover:bg-teal-50 text-teal-800 font-bold rounded-2xl text-sm border-2 border-teal-200 transition cursor-pointer">
+            시간 제한 없이 시작
+          </button>
+        </div>
+      </div>
+
+      <!-- 첫 화면 우측 9개 동물 유형 3x3 그리드: 순수 동물 이름만 단정하게 표시 -->
+      <div class="md:col-span-5 flex flex-col items-center justify-center p-2">
+        <div class="grid grid-cols-3 gap-3 p-5 bg-teal-50/70 border border-teal-200 rounded-3xl w-full max-w-[300px] shadow-inner">
+          <div class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border border-teal-100 p-2">
+            <span class="text-3xl">🐥</span>
+            <span class="text-[11px] font-bold text-teal-900 mt-1">병아리</span>
+          </div>
+          <div class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border border-teal-100 p-2">
+            <span class="text-3xl">🐹</span>
+            <span class="text-[11px] font-bold text-teal-900 mt-1">햄스터</span>
+          </div>
+          <div class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border border-teal-100 p-2">
+            <span class="text-3xl">🦊</span>
+            <span class="text-[11px] font-bold text-teal-900 mt-1">여우</span>
+          </div>
+          <div class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border border-teal-100 p-2">
+            <span class="text-3xl">🐑</span>
+            <span class="text-[11px] font-bold text-teal-900 mt-1">양</span>
+          </div>
+          <div class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border border-teal-100 p-2">
+            <span class="text-3xl">🐬</span>
+            <span class="text-[11px] font-bold text-teal-900 mt-1">돌고래</span>
+          </div>
+          <div class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border border-teal-100 p-2">
+            <span class="text-3xl">🦉</span>
+            <span class="text-[11px] font-bold text-teal-900 mt-1">부엉이</span>
+          </div>
+          <div class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border border-teal-100 p-2">
+            <span class="text-3xl">🐿️</span>
+            <span class="text-[11px] font-bold text-teal-900 mt-1">다람쥐</span>
+          </div>
+          <div class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border border-teal-100 p-2">
+            <span class="text-3xl">🐢</span>
+            <span class="text-[11px] font-bold text-teal-900 mt-1">거북이</span>
+          </div>
+          <div class="aspect-square bg-white rounded-2xl flex flex-col items-center justify-center shadow-sm border border-teal-100 p-2">
+            <span class="text-3xl">🐼</span>
+            <span class="text-[11px] font-bold text-teal-900 mt-1">판다</span>
+          </div>
+        </div>
+        <p class="text-xs font-extrabold text-teal-800 mt-3 text-center">
+          내 안의 9가지 동물 연구원 성향 찾기
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 1: 거리 측정 -->
+  <section class="bg-white/95 rounded-3xl border border-teal-200 p-6 md:p-8 shadow-xl shadow-teal-900/5 mb-6 hidden" id="step1">
+    <span class="text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-md">STEP 1</span>
+    <h2 class="text-xl font-bold text-teal-950 mt-2 mb-1">🌿 나와 뉴스 생태계의 거리</h2>
+    <p class="text-xs text-slate-500 mb-6">지금 내가 체감하는 세상 소식과의 친밀도를 슬라이더로 조절해 보세요.</p>
+    <div class="bg-teal-50/70 border border-teal-200 rounded-2xl p-6 mb-6">
+      <div class="flex justify-between text-xs font-bold text-teal-800 mb-2">
+        <span>생태계와 멀다 (0점)</span>
+        <span>생태계 한가운데 (100점)</span>
+      </div>
+      <input type="range" min="0" max="100" value="45" id="distanceRange" class="w-full h-3 bg-teal-200 rounded-lg appearance-none cursor-pointer accent-teal-600">
+      <div class="text-center mt-5">
+        <div class="text-5xl mb-2" id="distanceEmoji">🐿️</div>
+        <h3 class="text-2xl font-black text-teal-900" id="distanceScore">45점</h3>
+        <p class="text-xs font-semibold text-teal-700 mt-1" id="distanceLabel">세상 소식을 조금씩 기웃거리는 중</p>
+      </div>
+    </div>
+    <div class="flex gap-3">
+      <button type="button" id="step1HomeBtn" class="w-1/3 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs cursor-pointer">처음으로</button>
+      <button type="button" id="step1NextBtn" class="w-2/3 py-3 bg-teal-600 text-white font-bold rounded-xl text-xs shadow-md cursor-pointer">다음으로 ➔</button>
+    </div>
+  </section>
+
+  <!-- Step 2: 이유 탐색 -->
+  <section class="bg-white/95 rounded-3xl border border-teal-200 p-6 md:p-8 shadow-xl shadow-teal-900/5 mb-6 hidden" id="step2">
+    <span class="text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-md">STEP 2</span>
+    <h2 class="text-xl font-bold text-teal-950 mt-2 mb-1">🧭 내가 그 위치에 서 있는 이유는?</h2>
+    <p class="text-xs text-slate-500 mb-6">뉴스와 가깝거나 멀게 느끼는 이유를 골라보세요. (중복 선택 가능)</p>
+    <div class="mb-5">
+      <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full mb-2">뉴스와 가깝게 서 있는 이유</span>
+      <div class="flex flex-wrap gap-2" id="closeReasonsBox"></div>
+    </div>
+    <div class="mb-6">
+      <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-full mb-2">뉴스와 멀게 느끼는 이유</span>
+      <div class="flex flex-wrap gap-2" id="farReasonsBox"></div>
+    </div>
+    <div class="flex gap-3">
+      <button type="button" id="step2BackBtn" class="w-1/3 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs cursor-pointer">이전</button>
+      <button type="button" id="step2NextBtn" class="w-2/3 py-3 bg-teal-600 text-white font-bold rounded-xl text-xs shadow-md cursor-pointer">다음으로 ➔</button>
+    </div>
+  </section>
+
+  <!-- Step 3: 이용 빈도 -->
+  <section class="bg-white/95 rounded-3xl border border-teal-200 p-6 md:p-8 shadow-xl shadow-teal-900/5 mb-6 hidden" id="step3">
+    <span class="text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-md">STEP 3</span>
+    <h2 class="text-xl font-bold text-teal-950 mt-2 mb-1">🌅 평소 뉴스를 얼마나 자주 만나나요?</h2>
+    <p class="text-xs text-slate-500 mb-6">나의 일상 패턴과 가장 가까운 항목 하나를 골라주세요.</p>
+    <div class="space-y-2 mb-6" id="frequencyBox"></div>
+    <div class="flex gap-3">
+      <button type="button" id="step3BackBtn" class="w-1/3 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs cursor-pointer">이전</button>
+      <button type="button" id="step3NextBtn" class="w-2/3 py-3 bg-teal-600 text-white font-bold rounded-xl text-xs shadow-md cursor-pointer">다음으로 ➔</button>
+    </div>
+  </section>
+
+  <!-- Step 4: 접속 경로 -->
+  <section class="bg-white/95 rounded-3xl border border-teal-200 p-6 md:p-8 shadow-xl shadow-teal-900/5 mb-6 hidden" id="step4">
+    <span class="text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-md">STEP 4</span>
+    <h2 class="text-xl font-bold text-teal-950 mt-2 mb-1">📱 주로 어떤 경로로 소식을 접하나요?</h2>
+    <p class="text-xs text-slate-500 mb-6">내가 뉴스와 정보를 주로 마주치는 플랫폼을 모두 골라보세요. (중복 선택 가능)</p>
+    <div class="flex flex-wrap gap-2 mb-6" id="mediaBox"></div>
+    <div class="flex gap-3">
+      <button type="button" id="step4BackBtn" class="w-1/3 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs cursor-pointer">이전</button>
+      <button type="button" id="step4NextBtn" class="w-2/3 py-3 bg-teal-600 text-white font-bold rounded-xl text-xs shadow-md cursor-pointer">다음으로 ➔</button>
+    </div>
+  </section>
+
+  <!-- Step 5: 16개 문항 및 약점 선택 -->
+  <section class="bg-white/95 rounded-3xl border border-teal-200 p-6 md:p-8 shadow-xl shadow-teal-900/5 mb-6 hidden" id="step5">
+    <span class="text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-md">STEP 5</span>
+    <h2 class="text-xl font-bold text-teal-950 mt-2 mb-1">🧪 나의 뉴스 탐색 습관 체크 & 약점 선택</h2>
+    <p class="text-xs text-slate-500 mb-4">16개 문항에 솔직하게 체크하고, 나를 가장 피곤하게 하는 약점을 골라주세요.</p>
+
+    <div class="mb-5 bg-teal-50/60 p-4 rounded-2xl border border-teal-200">
+      <label class="block text-xs font-bold text-teal-950 mb-1">연구원 이름 / 닉네임</label>
+      <input type="text" id="userNameInput" placeholder="예: 팩트탐정_민지" class="w-full px-3.5 py-2 rounded-xl border border-teal-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white">
+    </div>
+
+    <div class="mb-6 bg-amber-50/70 p-4 rounded-2xl border border-amber-200">
+      <label class="block text-xs font-bold text-amber-950 mb-1">
+        ❓ "SNS나 뉴스를 볼 때 내가 가장 쉽게 낚이거나 피곤해지는 순간은?" (필수 1개)
+      </label>
+      <p class="text-[11px] text-amber-700 mb-3">내 마음을 시험에 들게 하는 함정을 골라주세요. 맞춤 필살 무기와 연결됩니다.</p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="weaknessSelectBox"></div>
+    </div>
+
+    <div class="sticky top-16 z-30 bg-white/95 backdrop-blur py-2 mb-4 border-b border-teal-100">
+      <div class="flex justify-between text-xs font-bold text-teal-800 mb-1">
+        <span>탐색 문항 응답 진행도</span>
+        <span id="progressText">0/16 완료</span>
+      </div>
+      <div class="h-2.5 bg-teal-100 rounded-full overflow-hidden">
+        <div class="h-full bg-teal-600 transition-all duration-300" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="space-y-4 mb-6" id="questionsContainer"></div>
+
+    <div class="flex gap-3">
+      <button type="button" id="step5BackBtn" class="w-1/3 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl text-xs cursor-pointer">이전</button>
+      <button type="button" id="submitBtn" disabled class="w-2/3 py-3.5 bg-teal-600 disabled:opacity-40 text-white font-bold rounded-xl text-sm shadow-md transition cursor-pointer">
+        내 동물 연구원 판별 & 레이더 분석 ➔
+      </button>
+    </div>
+  </section>
+
+  <!-- Step 6: 종합 결과 및 ID 카드 -->
+  <section class="space-y-6 hidden" id="step6">
+    <div class="flex justify-center">
+      <div id="shareProfileCard" class="w-full max-w-[380px] bg-white rounded-3xl border-2 border-teal-600 shadow-2xl overflow-hidden relative" style="box-shadow: 0 15px 35px -5px rgba(13, 148, 136, 0.25);">
+        <div class="pt-3 pb-1 flex justify-center bg-teal-950">
+          <div class="w-12 h-2.5 bg-teal-900 rounded-full border border-teal-700 shadow-inner"></div>
+        </div>
+
+        <div class="bg-teal-950 text-white px-5 pt-2 pb-4 text-center border-b border-teal-800">
+          <div class="flex items-center justify-between text-[10px] text-teal-300 tracking-widest font-mono">
+            <span>OFFICIAL LICENSE</span>
+            <span class="bg-teal-800 text-teal-200 px-2 py-0.5 rounded font-bold">VERIFIED</span>
+          </div>
+          <h2 class="text-base font-black tracking-tight mt-1 text-teal-50">디지털 뉴스 생태계 연구원증</h2>
+          <p class="text-[10px] text-teal-300">Digital News Ecosystem Laboratory</p>
+        </div>
+
+        <div class="p-5 space-y-4 bg-gradient-to-b from-teal-50/40 to-white">
+          <div class="flex gap-4 items-center">
+            <div class="w-24 h-28 rounded-2xl bg-gradient-to-b from-teal-100 to-emerald-100 border-2 border-teal-400 p-1.5 flex flex-col items-center justify-center shadow-inner flex-shrink-0">
+              <span class="text-4xl" id="resEmoji">🐾</span>
+              <span class="text-[9px] font-black text-teal-800 bg-white/95 px-1.5 py-0.5 rounded-full mt-1 border border-teal-200" id="resCluster">기초 텍스트군</span>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="text-[10px] font-mono text-teal-600 uppercase tracking-wider">RESEARCHER ID</div>
+              <h3 class="text-lg font-black text-teal-950 truncate leading-tight" id="cardUserName">김연구원</h3>
+              <div class="text-xs font-bold text-teal-700 mt-0.5" id="resName">번개 스크롤 햄스터형</div>
+              <div class="text-[10px] text-slate-500 mt-1 line-clamp-1" id="resTag">슬로건 한 줄</div>
+
+              <div class="mt-2 pt-2 border-t border-teal-100 flex items-center justify-between text-[10px]">
+                <span class="text-slate-400">발급일자</span>
+                <span class="font-mono text-slate-600 font-bold" id="cardIssueDate">2026.10.01</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-[11px]">
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-2.5">
+              <span class="text-[9px] font-extrabold text-amber-800 block">🛡️ 장착 필살기</span>
+              <span class="font-bold text-amber-950 truncate block mt-0.5" id="resItem">3초 멈춤 안경</span>
+            </div>
+            <div class="bg-teal-50 border border-teal-200 rounded-xl p-2.5">
+              <span class="text-[9px] font-extrabold text-teal-800 block">✨ 연구원 강점</span>
+              <span class="font-bold text-teal-950 truncate block mt-0.5" id="resStrength">이슈 감각 탁월</span>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-3 border border-teal-200/80 shadow-sm">
+            <div class="flex justify-between items-center mb-1 text-[10px]">
+              <span class="font-black text-teal-950">📊 6대 리터러시 역량 레이더</span>
+              <span class="font-mono text-teal-600 text-[9px]">HEXA-RADAR</span>
+            </div>
+            <div class="flex justify-center items-center">
+              <svg id="radarSvg" width="220" height="210" viewBox="0 0 320 300"></svg>
+            </div>
+            <div class="grid grid-cols-3 gap-1 mt-1 text-[9px]" id="radarScoreCards"></div>
+          </div>
+
+          <div class="pt-2 border-t border-teal-100 flex items-center justify-between">
+            <div class="space-y-0.5">
+              <div class="font-mono text-[9px] tracking-widest text-slate-400">LAB-ID-2026-FINAL</div>
+              <div class="flex gap-0.5 h-3.5 items-end opacity-70">
+                <div class="w-0.5 h-full bg-slate-800"></div><div class="w-1 h-full bg-slate-800"></div>
+                <div class="w-0.5 h-full bg-slate-800"></div><div class="w-1.5 h-full bg-slate-800"></div>
+                <div class="w-0.5 h-full bg-slate-800"></div><div class="w-2 h-full bg-slate-800"></div>
+                <div class="w-1 h-full bg-slate-800"></div><div class="w-0.5 h-full bg-slate-800"></div>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-400 via-emerald-300 to-amber-200 border border-teal-300 flex items-center justify-center shadow-sm">
+              <span class="text-[9px] font-black text-teal-900 rotate-[-12deg] tracking-tighter">OFFICIAL</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-teal-950 text-teal-300 text-[9px] py-1.5 px-4 text-center font-medium tracking-wide">
+          먼저 보고(M) 따져 보며(T) 이해하기(I)
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-2">
+      <button type="button" id="downloadCardBtn" class="flex-1 max-w-[240px] py-3.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold rounded-2xl shadow-lg shadow-teal-700/25 flex items-center justify-center gap-2 text-sm transition transform active:scale-[0.99] cursor-pointer">
+        <span>🪪</span> ID 카드 발급 (.png)
+      </button>
+      <button type="button" id="copyCardBtn" class="flex-1 max-w-[140px] py-3.5 bg-white border-2 border-teal-600 hover:bg-teal-50 text-teal-800 font-extrabold rounded-2xl shadow-md flex items-center justify-center gap-1.5 text-xs transition cursor-pointer">
+        <span>📋</span> 클립보드 복사
+      </button>
+    </div>
+
+    <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-2xl text-xs max-w-xl mx-auto">
+      <b class="text-emerald-900">🎯 1차시 연계 미션 가이드:</b>
+      <span class="text-emerald-800 ml-1 font-medium" id="resMissionGuide"></span>
+    </div>
+
+    <!-- 활동 2: 미션 허브 -->
+    <div class="bg-white rounded-3xl border border-teal-200 p-6 md:p-8 shadow-xl shadow-teal-900/5">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-bold text-teal-950">🎮 활동 2: 생태계 오염 기사 수술 작전</h3>
+        <span class="text-xs px-2.5 py-1 rounded-full font-bold" id="hubUnlockBadge">🔒 타 동물 미션 잠김</span>
+      </div>
+      <p class="text-xs text-slate-500 mb-4">
+        먼저 배정된 <b>내 캐릭터의 맞춤 기사 미션을 완료</b>하세요! 성공 시 다른 8개 동물의 미션이 모두 순차 해금됩니다.
+      </p>
+
+      <div class="grid grid-cols-3 gap-2.5 sm:gap-3 mb-6" id="animalHubGrid"></div>
+
+      <!-- 동적 수술 폼 렌더링 영역 -->
+      <div class="hidden border-2 border-teal-500 bg-teal-50/50 rounded-2xl p-5" id="missionActionArea"></div>
+    </div>
+
+    <div class="flex justify-center">
+      <button type="button" id="resetAllBtn" class="w-full max-w-sm py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">
+        처음부터 다시 진단하기
+      </button>
+    </div>
+  </section>
+</div>
+
+<!-- 수술 완료 공식 인증서 모달 & 기사 이미지 저장 카드 -->
+<div id="certModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+  <div class="bg-white rounded-3xl border-2 border-emerald-500 max-w-lg w-full p-6 shadow-2xl space-y-4">
+    <div class="text-center border-b border-emerald-100 pb-3">
+      <span class="text-3xl">🎉</span>
+      <h3 class="text-lg font-black text-emerald-950 mt-1">생태계 오염 기사 정화 인증 완료!</h3>
+      <p class="text-xs text-emerald-700">디지털 뉴스 생태계 연구소 공인 수술 성공 리포트</p>
+    </div>
+
+    <div id="surgeryCertCard" class="bg-emerald-50/70 border-2 border-emerald-300 rounded-2xl p-4 space-y-3">
+      <div class="flex justify-between items-center text-[10px] text-slate-500 border-b border-emerald-200/60 pb-1.5">
+        <span id="certAnimalLabel" class="font-bold text-teal-800">🦊 팩트체크 여우형 수술실</span>
+        <span class="bg-emerald-200 text-emerald-900 px-2.5 py-0.5 rounded-full font-black">정화 완료 ✔</span>
+      </div>
+
+      <div>
+        <span class="text-[10px] text-rose-500 font-bold line-through block truncate" id="certOldTitle">기존 오염 제목</span>
+        <h4 class="text-sm font-black text-slate-950 mt-0.5 leading-snug" id="certNewHeadline">수술된 기사 헤드라인</h4>
+      </div>
+
+      <div class="bg-white rounded-xl p-3.5 border border-emerald-200 text-xs text-slate-700 leading-relaxed max-h-48 overflow-y-auto whitespace-pre-line shadow-inner" id="certFixedContent"></div>
+
+      <div class="flex justify-between items-center text-[9px] text-slate-400 pt-1 border-t border-emerald-200/60">
+        <span>담당 연구원: <b class="text-slate-700" id="certResearcher">익명</b></span>
+        <span id="certDate">2026.10.01</span>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-2 pt-1">
+      <button type="button" id="downloadCertBtn" class="flex-1 min-w-[140px] py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer">
+        <span>📥</span> 기사 저장 (.png)
+      </button>
+      <button type="button" id="copyCertBtn" class="flex-1 min-w-[120px] py-3.5 bg-white border-2 border-emerald-600 hover:bg-emerald-50 text-emerald-800 font-bold rounded-xl text-xs shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+        <span>📋</span> 클립보드 복사
+      </button>
+      <button type="button" id="closeCertBtn" class="w-full sm:w-auto px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer">
+        닫기
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "NEWS_MBTI_LAB_V1";
+
+const state = {
+  timer: null, timeLeft: 300,
+  distance: 45,
+  closeReasons: [],
+  farReasons: [],
+  frequency: "",
+  media: [],
+  weakness: "",
+  answers: {},
+  userName: "",
+  myAnimalId: null,
+  matchedAnimal: null,
+  unlockedAll: false,
+  currentMissionAnimal: null,
+  completedMissions: {}
+};
+
+const axes = [
+  { key: "speed", label: "속도/직관", full: "⚡ 빨리 훑는 힘 (속도)", maxRaw: 10 },
+  { key: "depth", label: "심층 독해", full: "🔎 깊게 보는 힘 (심층)", maxRaw: 20 },
+  { key: "reaction", label: "감정 독립", full: "🌶️ 반응에 흔들림 (여론 민감도)", maxRaw: 20 },
+  { key: "check", label: "출처 검증", full: "🕵️ 확인하는 힘 (팩트체크)", maxRaw: 10 },
+  { key: "share", label: "공유 책임", full: "📢 나누고 표현하는 힘 (공유)", maxRaw: 15 },
+  { key: "reflect", label: "다각 관점", full: "🧭 내 편향 성찰 (관점)", maxRaw: 5 }
+];
+
+const questions = [
+  { id: 1, axis: "speed", text: "유튜브 쇼츠나 틱톡에서 제목과 썸네일만 보고 대충 무슨 내용인지 짐작하고 넘긴다." },
+  { id: 2, axis: "speed", text: "포털 뉴스나 피드를 볼 때 긴 글을 다 읽기보다 제목 위주로 빠르게 훑어본다." },
+  { id: 3, axis: "depth", text: "관심 있는 뉴스는 관련 기사까지 이어서 끝까지 찾아본다." },
+  { id: 4, axis: "depth", text: "같은 사건이라도 여러 매체의 뉴스를 비교해 본 적이 있다." },
+  { id: 5, axis: "reaction", text: "뉴스 내용을 끝까지 읽기 전에 댓글이나 반응부터 볼 때가 있다." },
+  { id: 6, axis: "reaction", text: "'충격', '경악', '결국..' 같은 자극적인 제목이나 썸네일은 일단 누르고 본다." },
+  { id: 7, axis: "depth", text: "뉴스 속 사진·영상이 어떤 느낌을 주도록 만들어졌는지 생각해 본다." },
+  { id: 8, axis: "depth", text: "뉴스를 볼 때 ‘왜 이런 표현을 썼을까?’ 의문을 품어본 적이 있다." },
+  { id: 9, axis: "reaction", text: "조회 수나 좋아요가 많으면 더 신뢰가 가는 편이다." },
+  { id: 10, axis: "reaction", text: "댓글 분위기에 따라 뉴스에 대한 느낌이 달라진 적이 있다." },
+  { id: 11, axis: "check", text: "뉴스가 사실인지 확인하기 위해 다른 자료를 찾아본 적이 있다." },
+  { id: 12, axis: "check", text: "뉴스 속 정보의 출처가 어디인지 살펴보는 편이다." },
+  { id: 13, axis: "share", text: "흥미로운 뉴스는 친구나 가족에게 빠르게 공유한 적이 있다." },
+  { id: 14, axis: "share", text: "뉴스에 댓글이나 의견을 직접 남겨본 적이 있다." },
+  { id: 15, axis: "reflect", text: "평소 내가 싫어하거나 관심 없는 분야의 뉴스는 아예 거르는 편이다." },
+  { id: 16, axis: "reflect", text: "의견이 다른 사람의 댓글이나 반응도 왜 그렇게 생각하는지 일부러 읽어본다." }
+];
+
+const animals = [
+  {
+    id: "CHICK", cluster: "기초 텍스트군", name: "뉴스 새싹 병아리형", emoji: "🐥",
+    tag: "세상 소식과 이제 막 눈을 맞추는 탐험 꿈나무",
+    ideal: [40, 30, 45, 30, 35, 30],
+    triggerWeakness: "한자어 폭탄",
+    item: "🔤 14세 쉬운 말 번역기",
+    strength: "선입견 없이 순수한 호기심 흡수",
+    caution: "어려운 시사 한자어에 대한 막연한 두려움",
+    missionGuide: "기사 속 낯선 한자어 3개를 찾아 친구들이 알아듣는 쉬운 말로 고쳐 쓰세요.",
+    article: {
+      type: "single",
+      title: "청소년 디지털 바우처 전국 도입… AI 교육 격차 완화 기대",
+      content: "정부가 취약계층 청소년을 대상으로 디지털 교육 바우처를 선제적으로 지급한다고 밝혔다. 이번 조치는 거시경제적 양극화 속에서 교육 격차를 줄이는 마중물이 될 것으로 기대된다. 다만 일각에서는 사후 유해 매체 차단 방안을 강구해야 한다는 지적이 병행되고 있다.",
+      m1Title: "낯선 단어 돋보기로 쉬운 뜻 연결하기",
+      actionType: "vocab",
+      vocabOptions: [
+        { term: "선제적", easy: "미리 앞서서" },
+        { term: "마중물", easy: "시작을 돕는 밑거름" },
+        { term: "강구하다", easy: "좋은 방법을 찾다" }
+      ],
+      m2Title: "14세 맞춤 쉬운 말로 문장 다시 쓰기",
+      guide: "돋보기로 확인한 쉬운 말을 터치하여 본문의 한자어를 친절한 일상어로 교체하세요."
+    }
+  },
+  {
+    id: "HAMSTER", cluster: "기초 텍스트군", name: "번개 스크롤 햄스터형", emoji: "🐹",
+    tag: "빛의 속도로 썸네일을 훑는 스피드 연구원",
+    ideal: [90, 40, 75, 40, 50, 40],
+    triggerWeakness: "어그로 제목",
+    item: "👓 3초 멈춤 안경",
+    strength: "탁월한 정보 탐지 및 이슈 캐치",
+    caution: "낚시성 제목·썸네일 충동 클릭 주의",
+    missionGuide: "낚시성 제목을 지우고 본문 속 핵심 팩트 2개를 담은 정직한 제목을 지으세요.",
+    article: {
+      type: "single",
+      title: "[경악] 인스타·틱톡 중학생 완전 금지?! 전 세계 난리 난 '이 법안'...",
+      content: "호주 정부가 16세 미만 청소년의 SNS 계정 개설을 금지하는 법안을 의회에 제출했다. 위반 시 학생 개인이 처벌받는 것이 아니라 해당 SNS 플랫폼 기업에 최대 450억 원의 과징금을 부과한다. 국내 교육계는 강제 차단보다 학교 미디어 리터러시 교육이 우선이라는 입장이다.",
+      m1Title: "본문 속 숨겨진 핵심 팩트 2개 발굴 (클릭)",
+      actionType: "hamsterFact",
+      factOptions: [
+        "처벌 대상은 학생 개인이 아니라 SNS 플랫폼 기업이다.",
+        "과징금은 최대 450억 원에 달한다.",
+        "한국에서는 아직 법안이 통과된 적 없다."
+      ],
+      m2Title: "정직한 헤드라인으로 제목 다시 달기",
+      guide: "선택한 핵심 사실 키워드를 조합하여 낚시 없는 객관적 제목 1줄을 작성하세요."
+    }
+  },
+  {
+    id: "TURTLE", cluster: "기초 텍스트군", name: "천천히 정독 거북이형", emoji: "🐢",
+    tag: "한 줄도 허투루 넘기지 않는 신중한 슬로우 리더",
+    ideal: [25, 90, 30, 75, 30, 70],
+    triggerWeakness: "한자어 폭탄",
+    item: "🔎 한 문장 요약 루페",
+    strength: "문장의 구조와 숨은 논리 정독",
+    caution: "긴급 속보에 대한 파악 속도 지연",
+    missionGuide: "기사의 3가지 핵심 뼈대를 바탕으로, 바쁜 독자를 위한 한 문장 핵심 요약문을 작성하세요.",
+    article: {
+      type: "single",
+      title: "교육감 선거 연령 '만 16세' 하향 법안 국회 발의... 찬반 대립",
+      content: "교육 정책의 직접 수혜자인 고등학생에게 교육감 선거권을 부여하자는 공직선거법 개정안이 국회에 제출됐다. 찬성 측은 학생들의 정책 효능감 증진과 맞춤 공약 활성화를 내세운다. 반면 반대 측은 입시 중심 학교가 정치 갈등에 휩싸일 수 있다는 점을 우려한다.",
+      m1Title: "기사 속 핵심 뼈대 추출",
+      actionType: "turtleSummary",
+      summaryPoints: [
+        "발의 내용: 교육감 선거권 연령을 만 16세로 낮추는 법안 제출",
+        "찬성 근거: 학생 참정권 및 맞춤 정책 확대",
+        "반대 근거: 교실의 정치화 및 학업 방해 우려"
+      ],
+      m2Title: "바쁜 독자를 위한 3대 핵심 포인트 요약 리포트",
+      guide: "복잡한 기사를 개조식 3분할 포인트로 정리해 독자에게 명쾌하게 전달하세요."
+    }
+  },
+  {
+    id: "SHEEP", cluster: "외부 상호작용군", name: "분위기 감지 양형", emoji: "🐑",
+    tag: "여론과 댓글 분위기를 민감하게 감지하는 공감러",
+    ideal: [60, 45, 90, 35, 60, 40],
+    triggerWeakness: "매운맛 댓글",
+    item: "🧼 멘탈 클린 필터",
+    strength: "대중의 감정과 사회적 여론 민감 감지",
+    caution: "베스트 댓글에 휩쓸려 주체적 생각 상실",
+    missionGuide: "댓글을 덮고 기사 사실에만 기반한 나만의 주체적 찬반 의견을 작성하세요.",
+    article: {
+      type: "single",
+      title: "촉법소년 연령 상한 '14세 ➔ 13세' 하향 추진... 네티즌 분노 폭발",
+      content: "법무부가 소년범죄 흉포화에 대응해 촉법소년 기준을 만 13세로 낮추는 개정안을 재추진한다. 인터넷 커뮤니티에는 '전부 감옥 보내라'는 격앙된 댓글이 쏟아지고 있다. 반면 인권 단체는 처벌 연령만 낮추면 재범률을 낮추는 교화 시스템이 무너진다고 경고한다.",
+      m1Title: "댓글 안개 가림막 & 내 생각 먼저 쓰기 (잠금 해제)",
+      actionType: "sheepOpinion",
+      m2Title: "균형 잡힌 주체적 독자 칼럼 작성",
+      guide: "감정적 댓글에 휘둘리지 않고, 양측의 근거를 고려한 나의 생각을 문장으로 완성하세요."
+    }
+  },
+  {
+    id: "SQUIRREL", cluster: "외부 상호작용군", name: "관심 수집 다람쥐형", emoji: "🐿️",
+    tag: "좋아하는 도토리는 끝까지 파고드는 몰입 전문가",
+    ideal: [70, 60, 50, 45, 40, 35],
+    triggerWeakness: "썸네일 번개",
+    item: "🧭 알고리즘 탈출 나침반",
+    strength: "관심 분야(게임·아이돌)에 대한 깊은 몰입",
+    caution: "필터버블에 갇혀 사회 전반 시사 편식",
+    missionGuide: "내 관심사와 오늘 읽은 사회 시사를 결합한 융합 뉴스 아이디어를 기획하세요.",
+    article: {
+      type: "single",
+      title: "AI 딥페이크 성범죄 처벌법 본회의 통과... 소지만 해도 징역형",
+      content: "인공지능 기술을 악용한 허위 영상물 제작 및 유포 범죄에 대해 징역형 처벌이 확정됐다. 기술의 급속한 발전 속에서 청소년들이 불법 합성물에 무방비로 노출되지 않도록 플랫폼의 기술적 차단 의무도 대폭 강화된다.",
+      m1Title: "알고리즘 탈출: 낯선 법률 이슈에서 발견한 점",
+      actionType: "squirrelQuiz",
+      m2Title: "내 관심사와 결합한 후속 기사 기획",
+      guide: "내가 좋아하는 관심 분야와 이 법률 뉴스가 만나는 융합 기사 제목과 기획 의도를 설계하세요."
+    }
+  },
+  {
+    id: "DOLPHIN", cluster: "외부 상호작용군", name: "소통 돌고래형", emoji: "🐬",
+    tag: "소식을 함께 나누며 생태계를 북돋우는 메신저",
+    ideal: [75, 45, 65, 40, 90, 50],
+    triggerWeakness: "단톡방 지라시",
+    item: "🛑 공유 정지 안테나",
+    strength: "친구들과 정보를 나누고 대화의 장 형성",
+    caution: "팩트 확인 전 단톡방 무분별 공유 충동",
+    missionGuide: "공유하기 전 6하원칙을 확인하고 [공유 이유 + 팩트 요약] 메시지를 완성하세요.",
+    article: {
+      type: "single",
+      title: "불법 웹툰·스트리밍 운영 사이트 무더기 검거... 수십억 부당이득",
+      content: "경찰청 국가수사본부는 국내 대형 웹툰을 무단 복제 유통한 사이트 3곳의 운영진을 구속했다고 밝혔다. 이들 사이트에 접속한 청소년들이 불법 도박 광고에 노출되는 2차 피해도 심각했던 것으로 조사됐다.",
+      m1Title: "공유 전 6하원칙 안전 체크",
+      actionType: "dolphinCheck",
+      m2Title: "책임 있는 단톡방 공유 큐레이션 작성",
+      guide: "친구들에게 링크만 던지지 않고, '공유하는 이유 + 주의할 점'을 편지글 형태로 한 줄 작성하세요."
+    }
+  },
+  {
+    id: "FOX", cluster: "비판적 검증군", name: "팩트체크 여우형", emoji: "🦊",
+    tag: "의심하고 검증하는 날카로운 증거 수사관",
+    ideal: [40, 75, 30, 95, 40, 70],
+    triggerWeakness: "숫자 착시",
+    item: "🔍 팩트체크 돋보기",
+    strength: "허위 정보·지라시를 거르는 팩트 수색력",
+    caution: "과도한 불신으로 모든 미디어를 회피",
+    missionGuide: "기사의 흐릿한 출처와 모호한 수치를 공식 통계 검색 도구로 채워 넣으세요.",
+    article: {
+      type: "single",
+      title: "청소년 주식 계좌 개설 급증... 무분별한 '영끌 투자' 위험 경고",
+      content: "최근 <span id='foxBlankOrg' class='bg-amber-200 text-amber-950 font-bold px-1 rounded'>[한 정부 기관]</span> 조사에 따르면 중고등학생의 증권 계좌 개설 건수가 3년 새 약 <span id='foxBlankNum' class='bg-amber-200 text-amber-950 font-bold px-1 rounded'>[O배 이상]</span> 폭증한 것으로 나타났다. 관계자는 청소년들이 원금 손실 위험이 큰 고위험 파생 상품에 무방비로 뛰어들고 있다고 경고했다.",
+      m1Title: "출처 수색 검색창 (빈칸 채우기)",
+      actionType: "foxSearch",
+      m2Title: "출처와 데이터가 완벽한 검증 기사로 수정하기",
+      guide: "검색을 통해 찾아낸 출처를 원클릭 삽입하거나 본문 수정문에 직접 반영하세요."
+    }
+  },
+  {
+    id: "OWL", cluster: "비판적 검증군", name: "깊이 관찰 부엉이형", emoji: "🦉",
+    tag: "기사의 숨겨진 맥락과 이면을 꿰뚫는 철학자",
+    ideal: [35, 95, 30, 80, 45, 90],
+    triggerWeakness: "어그로 제목",
+    item: "⚖️ 양쪽 시소 저울",
+    strength: "사건의 역사적 맥락과 프레임 입체 분석",
+    caution: "생각이 너무 많아져 의견 표현 타이밍 지연",
+    missionGuide: "기사에서 다루지 않은 소외된 제3자의 목소리를 인터뷰 형태로 덧붙이세요.",
+    article: {
+      type: "single",
+      title: "웹툰 창작에도 생성형 AI 도입 열풍... 제작사 '제작비 50% 절감 환호'",
+      content: "웹툰 제작 스튜디오들이 AI 작화 프로그램을 도입하며 제작 기간을 절반으로 단축하고 있다. 플랫폼 대표는 '독자들에게 더 빠른 연재를 제공할 혁신'이라 평가했다. 반면 작가 단체는 화풍 무단 도용이라며 반발하고 있으나, 정작 이를 소비하는 청소년 독자들의 의견은 기사에 없다.",
+      m1Title: "소외된 이해관계자 탐색 (제3자)",
+      actionType: "owlView",
+      m2Title: "소외된 관점 보완: [반면, 다른 한편에서는...]",
+      guide: "기사에서 생략된 청소년 독자나 신인 창작자의 목소리를 가상 인터뷰로 작성해 균형을 맞추세요."
+    }
+  },
+  {
+    id: "PANDA", cluster: "비판적 검증군", name: "균형 성장 판다형", emoji: "🐼",
+    tag: "다양한 관점을 조화롭게 흡수하는 올라운더 연구원",
+    ideal: [60, 80, 40, 85, 60, 85],
+    triggerWeakness: "숫자 착시",
+    item: "📋 팩트 검증 체크리스트",
+    strength: "출처와 타 매체를 비교하는 올라운드 균형 감각",
+    caution: "매체별 논조 차이 속에서 자기 기준 동요",
+    missionGuide: "서로 다른 보도 태도를 보이는 두 언론사 기사를 비교하고, 나만의 비판적 1인칭 미디어 비평문을 작성하세요.",
+    article: {
+      type: "dual",
+      title: "동일 사건, 엇갈린 시선: 교내 스마트폰 소지 금지 조례안 통과",
+      articles: [
+        {
+          press: "📰 언론사 A (교권·학습권 중심)",
+          headline: "\"수업 집중·교권 회복의 첫걸음\"... 스마트폰 수거 조례 통과에 교원 환영",
+          content: "시의회가 교내 스마트폰 수거를 의무화하는 조례를 통과시켰다. 교사 단체는 수업 중 무분별한 영상 시청과 불법 촬영 등 교권 침해를 막기 위해 반드시 필요한 조치라며 환영했다. 학부모 단체 역시 자녀들의 디지털 과몰입을 완화할 것이라며 지지 의사를 밝혔다."
+        },
+        {
+          press: "📰 언론사 B (인권·자율성 중심)",
+          headline: "\"학생을 잠재적 문제아 취급\"... 스마트폰 전면 압수에 인권 단체 반발",
+          content: "학생들의 교내 스마트폰 소지를 일괄 금지하는 조례가 통과되자 국가인권위와 청소년 단체는 '통신의 자유와 사생활을 침해하는 과잉 금지'라며 철회를 촉구했다. 일방적 통제보다 스스로 디지털 기기 사용을 조절하도록 교육하는 자율적 규제가 우선이라는 비판이다."
+        }
+      ],
+      m1Title: "판다의 양 언론사 보도 태도 교차 분석",
+      actionType: "pandaDualCheck",
+      m2Title: "나만의 비판적 읽기 기준을 적용한 1인칭 미디어 비평문",
+      guide: "양 언론사의 보도 프레임을 대조하며 나의 성찰을 3분할 분석문으로 작성하세요."
+    }
+  }
+];
+
+const closeReasons = [
+  "세상이 어떻게 돌아가는지 트렌드를 알고 싶어서",
+  "친구들과 대화할 때 소외되지 않으려고",
+  "진짜 정보와 가짜 정보를 스스로 구별하고 싶어서",
+  "내 관심사(게임, 연예, 환경 등)와 연결되어서",
+  "사회에서 일어나는 일들이 내 미래와 직결되어서"
+];
+const farReasons = [
+  "유튜브 숏폼, 릴스, 웹툰이 훨씬 더 재밌어서",
+  "어려운 시사 한자어나 전문 용어가 너무 많아서",
+  "나와 상관없는 어른들 싸움 이야기 같아서",
+  "글이 너무 길고 복잡해서 읽기 지쳐서",
+  "자극적인 낚시 기사가 너무 많아서 피곤해서"
+];
+const frequencies = ["거의 안 봄", "주 1~2회 정도", "하루 한 번 정도", "하루 수시로 접함", "관심 이슈가 터졌을 때만"];
+const mediaOptions = ["유튜브 / 쇼츠", "인스타그램 / 틱톡", "네이버 / 다음 포털 뉴스", "TV 방송 뉴스", "카카오톡 단톡방", "친구·가족과의 대화"];
+const weaknesses = [
+  { title: "🎣 어그로 제목", desc: "'충격', '결국' 클릭 안 하고는 못 배기는 낚시성 제목" },
+  { title: "⚡ 썸네일 번개", desc: "빨간 동그라미, 과장된 합성 이미지" },
+  { title: "🌶️ 매운맛 댓글", desc: "기사보다 매워서 내 기분을 조종하는 댓글 창" },
+  { title: "🌊 숫자 착시", desc: "조회수 100만, 좋아요만 보면 무조건 믿는 마음" },
+  { title: "💣 한자어 폭탄", desc: "어려운 시사 용어 때문에 3초 만에 꺼버리는 습관" },
+  { title: "💨 단톡방 지라시", desc: "'야 이거 진짜래' 출처 불분명한 소문 공유" }
+];
+
+function el(id){ return document.getElementById(id); }
+
+function saveStateToStorage(){
+  try {
+    const payload = {
+      userName: state.userName,
+      distance: state.distance,
+      frequency: state.frequency,
+      media: state.media,
+      weakness: state.weakness,
+      answers: state.answers,
+      myAnimalId: state.myAnimalId,
+      unlockedAll: state.unlockedAll,
+      completedMissions: state.completedMissions
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch(e) {
+    console.warn("로컬 저장소 저장 불가", e);
+  }
+}
+
+function loadStateFromStorage(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    Object.assign(state, data);
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+function goToStep(stepNum){
+  if(stepNum === 0){
+    if(state.timer) clearInterval(state.timer);
+    el("timerBar").classList.add("hidden");
+    el("stepsBar").classList.add("hidden");
+    el("home").classList.remove("hidden");
+    for(let i=1; i<=6; i++) {
+      const stepEl = el("step" + i);
+      if(stepEl) stepEl.classList.add("hidden");
+    }
+    window.scrollTo(0,0);
+    return;
+  }
+
+  el("home").classList.add("hidden");
+  el("stepsBar").classList.remove("hidden");
+
+  for(let j=1; j<=6; j++){
+    const stepEl = el("step" + j);
+    if(stepEl) stepEl.classList.toggle("hidden", j !== stepNum);
+    const ind = el("stepIndicator" + j);
+    if(ind){
+      if(j === stepNum){
+        ind.className = "py-1.5 text-center text-xs font-bold rounded-xl bg-teal-600 text-white";
+      } else {
+        ind.className = "py-1.5 text-center text-xs font-bold rounded-xl bg-teal-50 text-teal-800";
+      }
+    }
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startApp(useTimer){
+  goToStep(1);
+
+  if(useTimer){
+    state.timeLeft = 300;
+    el("timerBar").classList.remove("hidden");
+    updateTimerDisplay();
+    if(state.timer) clearInterval(state.timer);
+    state.timer = setInterval(() => {
+      state.timeLeft--;
+      if(state.timeLeft <= 0){
+        clearInterval(state.timer);
+        alert("⏱️ 5분 집중 진단 시간이 종료되었습니다! 지금까지 기록된 응답으로 결과를 판별합니다.");
+        fillDefaults();
+        diagnoseResult();
+      } else {
+        updateTimerDisplay();
+      }
+    }, 1000);
+  }
+}
+
+function updateTimerDisplay(){
+  const m = String(Math.floor(state.timeLeft / 60)).padStart(2, '0');
+  const s = String(state.timeLeft % 60).padStart(2, '0');
+  el("timerText").innerText = `${m}:${s}`;
+  el("timerFill").style.width = `${(state.timeLeft / 300 * 100)}%`;
+  el("timerIcon").innerText = state.timeLeft <= 15 ? "⚠️" : "⏱️";
+}
+
+function updateDistanceUI(){
+  state.distance = Number(el("distanceRange").value);
+  el("distanceScore").innerText = `${state.distance}점`;
+  el("distanceEmoji").innerText = state.distance <= 30 ? "🐥" : (state.distance <= 65 ? "🐿️" : "🦊");
+  let lbl = "세상 소식을 조금씩 기웃거리는 중";
+  if(state.distance <= 25) lbl = "생태계와 아직 낯선 사이 (거리감 큼)";
+  else if(state.distance >= 80) lbl = "정보 생태계의 중심에서 헤엄치는 중!";
+  el("distanceLabel").innerText = lbl;
+  saveStateToStorage();
+}
+
+function renderPills(){
+  const cBox = el("closeReasonsBox"); cBox.innerHTML = "";
+  closeReasons.forEach(r => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    const active = state.closeReasons.includes(r);
+    btn.className = `px-3 py-1.5 rounded-xl border text-xs font-medium transition cursor-pointer ${active ? "bg-teal-600 text-white border-teal-600 font-bold" : "bg-white border-teal-200 text-slate-700 hover:bg-teal-50"}`;
+    btn.innerText = r;
+    btn.onclick = () => {
+      const idx = state.closeReasons.indexOf(r);
+      if(idx > -1) state.closeReasons.splice(idx, 1);
+      else state.closeReasons.push(r);
+      renderPills();
+      saveStateToStorage();
+    };
+    cBox.appendChild(btn);
+  });
+
+  const fBox = el("farReasonsBox"); fBox.innerHTML = "";
+  farReasons.forEach(r => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    const active = state.farReasons.includes(r);
+    btn.className = `px-3 py-1.5 rounded-xl border text-xs font-medium transition cursor-pointer ${active ? "bg-amber-600 text-white border-amber-600 font-bold" : "bg-white border-amber-200 text-slate-700 hover:bg-amber-50"}`;
+    btn.innerText = r;
+    btn.onclick = () => {
+      const idx = state.farReasons.indexOf(r);
+      if(idx > -1) state.farReasons.splice(idx, 1);
+      else state.farReasons.push(r);
+      renderPills();
+      saveStateToStorage();
+    };
+    fBox.appendChild(btn);
+  });
+
+  const freqBox = el("frequencyBox"); freqBox.innerHTML = "";
+  frequencies.forEach(f => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    const active = state.frequency === f;
+    btn.className = `w-full text-left p-3 rounded-xl border text-xs font-medium transition cursor-pointer ${active ? "bg-teal-600 text-white border-teal-600 font-bold shadow-sm" : "bg-white border-teal-200 text-slate-700 hover:bg-teal-50"}`;
+    btn.innerText = f;
+    btn.onclick = () => { state.frequency = f; renderPills(); saveStateToStorage(); };
+    freqBox.appendChild(btn);
+  });
+
+  const mBox = el("mediaBox"); mBox.innerHTML = "";
+  mediaOptions.forEach(m => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    const active = state.media.includes(m);
+    btn.className = `px-3 py-2 rounded-xl border text-xs font-medium transition cursor-pointer ${active ? "bg-teal-600 text-white border-teal-600 font-bold shadow-sm" : "bg-white border-teal-200 text-slate-700 hover:bg-teal-50"}`;
+    btn.innerText = m;
+    btn.onclick = () => {
+      const idx = state.media.indexOf(m);
+      if(idx > -1) state.media.splice(idx, 1);
+      else state.media.push(m);
+      renderPills();
+      saveStateToStorage();
+    };
+    mBox.appendChild(btn);
+  });
+
+  const wBox = el("weaknessSelectBox"); wBox.innerHTML = "";
+  weaknesses.forEach(w => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    const active = state.weakness === w.title;
+    btn.className = `text-left p-2.5 rounded-xl border text-xs transition cursor-pointer ${active ? "border-amber-600 bg-amber-100/90 text-amber-950 font-bold shadow-sm ring-2 ring-amber-300" : "border-amber-200 bg-white text-slate-700 hover:bg-amber-50"}`;
+    btn.innerHTML = `<div class='font-bold'>${w.title}</div><div class='text-[10px] text-slate-500 mt-0.5 leading-snug'>${w.desc}</div>`;
+    btn.onclick = () => { state.weakness = w.title; renderPills(); checkSubmitValid(); saveStateToStorage(); };
+    wBox.appendChild(btn);
+  });
+}
+
+function renderQuestions(){
+  const qc = el("questionsContainer"); qc.innerHTML = "";
+  questions.forEach(q => {
+    const card = document.createElement("div");
+    card.className = "p-4 rounded-2xl bg-white border border-teal-100 shadow-sm";
+    
+    const axisLabel = axes.find(a => a.key === q.axis).full;
+    let html = `<div class='flex justify-between items-start gap-2 mb-2'>
+                  <span class='text-xs font-black text-teal-950 leading-snug'>${q.id}. ${q.text}</span>
+                </div>
+                <div class='text-[10px] font-semibold text-teal-600 mb-2'>탐색 지표: ${axisLabel}</div>
+                <div class='grid grid-cols-5 gap-1.5'>`;
+
+    for(let v=1; v<=5; v++){
+      const active = state.answers[q.id] === v;
+      html += `<button type='button' data-qid='${q.id}' data-val='${v}' class='scale-btn py-2 rounded-lg text-xs font-bold transition cursor-pointer ${active ? "bg-teal-600 text-white shadow-sm" : "bg-teal-50/70 border border-teal-200 text-teal-800 hover:bg-teal-100"}'>${v}점</button>`;
+    }
+    html += `</div>`;
+    card.innerHTML = html;
+    qc.appendChild(card);
+  });
+
+  qc.querySelectorAll(".scale-btn").forEach(btn => {
+    btn.onclick = function(){
+      const qId = Number(this.getAttribute("data-qid"));
+      const val = Number(this.getAttribute("data-val"));
+      state.answers[qId] = val;
+      renderQuestions();
+      updateProgress();
+      checkSubmitValid();
+      saveStateToStorage();
+    };
+  });
+}
+
+function updateProgress(){
+  let count = Object.keys(state.answers).length;
+  el("progressBar").style.width = `${Math.round(count / 16 * 100)}%`;
+  el("progressText").innerText = `${count}/16 완료`;
+}
+
+function checkSubmitValid(){
+  let count = Object.keys(state.answers).length;
+  el("submitBtn").disabled = !(count === 16 && state.weakness !== "");
+}
+
+function fillDefaults(){
+  questions.forEach(q => {
+    if(!state.answers[q.id]) state.answers[q.id] = 3;
+  });
+  if(!state.weakness) state.weakness = "🎣 어그로 제목";
+  if(!state.frequency) state.frequency = "하루 한 번 정도";
+  if(state.media.length === 0) state.media.push("네이버 / 다음 포털 뉴스");
+}
+
+function computeNormalizedScores(){
+  const raw = { speed: 0, depth: 0, reaction: 0, check: 0, share: 0, reflect: 0 };
+  questions.forEach(q => {
+    if(state.answers[q.id]) raw[q.axis] += state.answers[q.id];
+  });
+
+  const normalized = {};
+  axes.forEach(ax => {
+    normalized[ax.key] = Math.min(100, Math.round(raw[ax.key] / ax.maxRaw * 100));
+  });
+  return normalized;
+}
+
+function diagnoseResult(){
+  state.userName = el("userNameInput").value.trim() || "수석 연구원";
+  if(state.timer) clearInterval(state.timer);
+  el("timerBar").classList.add("hidden");
+
+  const S = computeNormalizedScores();
+
+  const distances = animals.map(animal => {
+    let dist = 0;
+    axes.forEach((ax, idx) => {
+      const diff = S[ax.key] - animal.ideal[idx];
+      dist += diff * diff;
+    });
+    dist = Math.sqrt(dist);
+
+    if(state.weakness.includes(animal.triggerWeakness)) dist -= 6;
+    if(state.distance <= 35 && animal.cluster === "기초 텍스트군") dist -= 4;
+    if(state.distance >= 75 && animal.cluster === "비판적 검증군") dist -= 4;
+
+    return { animal, distance: dist };
+  });
+
+  distances.sort((a, b) => a.distance - b.distance);
+  const matchedAnimal = distances[0].animal;
+  state.myAnimalId = matchedAnimal.id;
+  state.matchedAnimal = matchedAnimal;
+
+  saveStateToStorage();
+  renderStep6(matchedAnimal, S);
+  goToStep(6);
+}
+
+function renderStep6(animal, scores){
+  el("cardUserName").innerText = state.userName;
+  el("resEmoji").innerText = animal.emoji;
+  el("resCluster").innerText = animal.cluster;
+  el("resName").innerText = animal.name;
+  el("resTag").innerText = animal.tag;
+  el("resStrength").innerText = animal.strength;
+  el("resItem").innerText = animal.item;
+  el("resMissionGuide").innerText = animal.missionGuide;
+
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+  el("cardIssueDate").innerText = dateStr;
+
+  renderRadarChart(scores, animal.ideal);
+  renderRadarScoreCards(scores);
+  renderAnimalHub();
+}
+
+function renderRadarChart(userScores, idealVector){
+  const svg = el("radarSvg");
+  svg.innerHTML = "";
+
+  const cx = 160, cy = 150, r = 85;
+  const totalAxes = axes.length;
+  const angleStep = (Math.PI * 2) / totalAxes;
+
+  for(let level = 1; level <= 5; level++){
+    const levelR = r * (level / 5);
+    const points = [];
+    for(let i = 0; i < totalAxes; i++){
+      const angle = i * angleStep - Math.PI / 2;
+      const x = cx + levelR * Math.cos(angle);
+      const y = cy + levelR * Math.sin(angle);
+      points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+    }
+    const polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    polygon.setAttribute("points", points.join(" "));
+    polygon.setAttribute("class", "radar-grid");
+    svg.appendChild(polygon);
+  }
+
+  for(let a = 0; a < totalAxes; a++){
+    const aAngle = a * angleStep - Math.PI / 2;
+    const axX = cx + r * Math.cos(aAngle);
+    const axY = cy + r * Math.sin(aAngle);
+
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", cx); line.setAttribute("y1", cy);
+    line.setAttribute("x2", axX); line.setAttribute("y2", axY);
+    line.setAttribute("class", "radar-axis");
+    svg.appendChild(line);
+
+    const labelR = r + 24;
+    const lx = cx + labelR * Math.cos(aAngle);
+    const ly = cy + labelR * Math.sin(aAngle) + 4;
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", lx); text.setAttribute("y", ly);
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("fill", "#0f766e");
+    text.setAttribute("font-size", "11px");
+    text.setAttribute("font-weight", "bold");
+    text.textContent = axes[a].label;
+    svg.appendChild(text);
+  }
+
+  const idealPoints = [];
+  for(let idIdx = 0; idIdx < totalAxes; idIdx++){
+    const idAngle = idIdx * angleStep - Math.PI / 2;
+    const idR = r * (idealVector[idIdx] / 100);
+    const ix = cx + idR * Math.cos(idAngle);
+    const iy = cy + idR * Math.sin(idAngle);
+    idealPoints.push(`${ix.toFixed(1)},${iy.toFixed(1)}`);
+  }
+  const idealPoly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  idealPoly.setAttribute("points", idealPoints.join(" "));
+  idealPoly.setAttribute("class", "radar-ideal");
+  svg.appendChild(idealPoly);
+
+  const userPoints = [];
+  axes.forEach((ax, uIdx) => {
+    const uAngle = uIdx * angleStep - Math.PI / 2;
+    const uR = r * (userScores[ax.key] / 100);
+    const ux = cx + uR * Math.cos(uAngle);
+    const uy = cy + uR * Math.sin(uAngle);
+    userPoints.push(`${ux.toFixed(1)},${uy.toFixed(1)}`);
+  });
+  const userPoly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  userPoly.setAttribute("points", userPoints.join(" "));
+  userPoly.setAttribute("class", "radar-polygon");
+  svg.appendChild(userPoly);
+}
+
+function renderRadarScoreCards(scores){
+  const box = el("radarScoreCards"); box.innerHTML = "";
+  axes.forEach(ax => {
+    const val = scores[ax.key];
+    const chip = document.createElement("div");
+    chip.className = "bg-teal-50 py-1 px-1.5 rounded-md border border-teal-200 flex justify-between items-center";
+    chip.innerHTML = `<span class='text-teal-900 font-semibold'>${ax.label.split("/")[0]}</span>
+                     <span class='font-black text-teal-700'>${val}</span>`;
+    box.appendChild(chip);
+  });
+}
+
+function downloadProfileCard(){
+  const target = el("shareProfileCard");
+  const userName = state.userName || "연구원";
+  const animalName = state.matchedAnimal ? state.matchedAnimal.name.split(" ").slice(1).join("") : "성향";
+
+  document.fonts.ready.then(() => {
+    html2canvas(target, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: null,
+      scrollX: 0,
+      scrollY: 0,
+      onclone: (clonedDoc) => {
+        const clonedCard = clonedDoc.getElementById("shareProfileCard");
+        if(clonedCard) {
+          clonedCard.style.letterSpacing = "0px";
+          clonedCard.querySelectorAll("*").forEach(node => {
+            node.style.letterSpacing = "0px";
+          });
+        }
+      }
+    }).then(canvas => {
+      const link = document.createElement("a");
+      link.download = `ID카드_${userName}_${animalName}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }).catch(err => {
+      alert("ID 카드 발급 중 오류가 발생했습니다.");
+      console.error(err);
+    });
+  });
+}
+
+async function copyCanvasToClipboard(targetElement, successMsg){
+  try {
+    await document.fonts.ready;
+    const canvas = await html2canvas(targetElement, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null,
+      scrollX: 0,
+      scrollY: 0,
+      onclone: (clonedDoc) => {
+        const clonedEl = clonedDoc.getElementById(targetElement.id);
+        if(clonedEl){
+          clonedEl.style.letterSpacing = "0px";
+          clonedEl.querySelectorAll("*").forEach(node => {
+            node.style.letterSpacing = "0px";
+          });
+        }
+      }
+    });
+    canvas.toBlob(async (blob) => {
+      if(!blob) throw new Error("이미지 생성 실패");
+      if(navigator.clipboard && window.ClipboardItem){
+        await navigator.clipboard.write([
+          new ClipboardItem({ "image/png": blob })
+        ]);
+        alert(successMsg || "클립보드에 이미지가 복사되었습니다!");
+      } else {
+        alert("브라우저가 이미지 직접 복사를 지원하지 않아 파일 저장을 권장합니다.");
+      }
+    });
+  } catch(err) {
+    alert("클립보드 복사 중 오류가 발생했습니다.");
+  }
+}
+
+function renderAnimalHub(){
+  const hub = el("animalHubGrid"); hub.innerHTML = "";
+  const badge = el("hubUnlockBadge");
+  
+  if(state.unlockedAll){
+    badge.className = "text-xs px-2.5 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800";
+    badge.innerText = "🔓 전 동물 미션 해금 완료";
+  } else {
+    badge.className = "text-xs px-2.5 py-1 rounded-full font-bold bg-amber-100 text-amber-800";
+    badge.innerText = "🔒 타 동물 미션 잠김 (내 미션 먼저 완료)";
+  }
+
+  animals.forEach(a => {
+    const isMine = a.id === state.myAnimalId;
+    const canOpen = isMine || state.unlockedAll;
+    const isDone = !!state.completedMissions[a.id];
+    const fullNameCombined = a.name.split(" ").slice(1).join("");
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    let stateClass = "";
+    if(isMine){
+      stateClass = "border-2 border-teal-600 bg-teal-50 ring-2 ring-teal-300 shadow-md";
+    } else if(canOpen){
+      stateClass = "border border-teal-200 bg-white hover:border-teal-400";
+    } else {
+      stateClass = "border border-slate-200 bg-slate-100 opacity-50 cursor-not-allowed";
+    }
+
+    btn.className = `p-3 rounded-2xl flex flex-col items-center text-center transition cursor-pointer relative ${stateClass}`;
+    btn.innerHTML = `
+      ${isDone ? "<span class='absolute top-1.5 right-1.5 text-[9px] bg-emerald-500 text-white px-1.5 py-0.2 rounded-full font-bold'>완료✔</span>" : ""}
+      <div class="text-2xl mb-1">${a.emoji}</div>
+      <div class="text-xs font-bold text-teal-950">${fullNameCombined}</div>
+      <div class="text-[10px] mt-0.5 ${isMine ? "text-teal-700 font-extrabold" : "text-slate-400"}">
+        ${isMine ? "★ 내 캐릭터" : (canOpen ? "수술 가능" : "잠김 🔒")}
+      </div>
+    `;
+    
+    btn.onclick = () => {
+      if(!canOpen){
+        alert("먼저 배정받은 나의 동물 미션을 완료해 생태계 오염을 정화하세요!");
+        return;
+      }
+      renderSurgeryModal(a);
+    };
+    hub.appendChild(btn);
+  });
+}
+
+function renderSurgeryModal(animal){
+  state.currentMissionAnimal = animal;
+  const area = el("missionActionArea");
+  area.classList.remove("hidden");
+
+  let step2FormHtml = "";
+  if(animal.id === "HAMSTER"){
+    step2FormHtml = `
+      <div class="space-y-2">
+        <div id="hFactChipContainer" class="flex flex-wrap gap-1.5 text-[10px] text-teal-800 font-bold mb-1">
+          <span class="text-slate-400">1단계에서 고른 팩트가 제목 힌트로 연결됩니다</span>
+        </div>
+        <label class="block text-[11px] font-bold text-slate-700">새로운 정직한 헤드라인 (1줄 헤드라인):</label>
+        <input type="text" id="mHamsterTitleInput" placeholder="낚시 없는 정직한 새 제목을 입력하세요" class="w-full text-xs p-3 border border-teal-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white font-bold">
+      </div>
+    `;
+  } else if(animal.id === "TURTLE" || animal.id === "PANDA"){
+    step2FormHtml = `
+      <div class="space-y-2">
+        <label class="block text-[11px] font-bold text-slate-700">바쁜 독자를 위한 3대 핵심 포인트 리포트:</label>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-teal-700 w-5">①</span>
+            <input type="text" id="mPointInput1" placeholder="핵심 내용 1" class="flex-1 text-xs p-2 border border-teal-200 rounded-lg bg-white">
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-teal-700 w-5">②</span>
+            <input type="text" id="mPointInput2" placeholder="핵심 내용 2" class="flex-1 text-xs p-2 border border-teal-200 rounded-lg bg-white">
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-teal-700 w-5">③</span>
+            <input type="text" id="mPointInput3" placeholder="핵심 내용 3" class="flex-1 text-xs p-2 border border-teal-200 rounded-lg bg-white">
+          </div>
+        </div>
+      </div>
+    `;
+  } else if(animal.id === "OWL"){
+    step2FormHtml = `
+      <div class="space-y-2">
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs">
+          <span class="font-bold text-amber-900 block mb-1">📢 소외된 제3자 인터뷰 추가 (인용구):</span>
+          <div class="flex items-start gap-1.5">
+            <span class="font-extrabold text-teal-700 text-xs whitespace-nowrap mt-1.5">[반면, 다른 한편에서는]</span>
+            <textarea id="mOwlQuoteInput" rows="2" placeholder="기사에서 배제된 청소년 독자나 신인 창작자의 생생한 목소리를 적어주세요..." class="flex-1 text-xs p-2 border border-amber-300 rounded-lg bg-white"></textarea>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if(animal.id === "DOLPHIN"){
+    step2FormHtml = `
+      <div class="space-y-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div class="p-2.5 bg-sky-50 rounded-xl border border-sky-200">
+            <span class="text-[11px] font-bold text-sky-900 block mb-1">💬 공유하는 핵심 이유:</span>
+            <input type="text" id="mDolphinReasonInput" placeholder="예: 청소년 개인정보 보호를 위해 꼭 알아야 해!" class="w-full text-xs p-2 border border-sky-300 rounded-lg bg-white">
+          </div>
+          <div class="p-2.5 bg-rose-50 rounded-xl border border-rose-200">
+            <span class="text-[11px] font-bold text-rose-900 block mb-1">⚠️ 단톡방 전달 시 주의점:</span>
+            <input type="text" id="mDolphinCautionInput" placeholder="예: 아직 통과 안 된 해외 법안이니 오해 금지!" class="w-full text-xs p-2 border border-rose-300 rounded-lg bg-white">
+          </div>
+        </div>
+      </div>
+    `;
+  } else if(animal.id === "CHICK"){
+    step2FormHtml = `
+      <div class="space-y-2">
+        <div class="p-2.5 bg-teal-50 rounded-xl border border-teal-200">
+          <span class="text-[11px] font-bold text-teal-900 block mb-1">🔤 14세 맞춤 쉬운 말 문장 변환:</span>
+          <textarea id="mChickEasyInput" rows="2" placeholder="선제적 ➔ 미리, 마중물 ➔ 시작을 돕는 밑거름 등으로 바꾼 문장을 적어주세요..." class="w-full text-xs p-2.5 border border-teal-300 rounded-lg bg-white"></textarea>
+        </div>
+      </div>
+    `;
+  } else {
+    step2FormHtml = `
+      <textarea id="mGenericInput" rows="3" class="w-full text-xs p-3 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white" placeholder="기사를 정직하고 균형 있게 재작성해 보세요..."></textarea>
+    `;
+  }
+
+  let articleHtml = "";
+  if(animal.article.type === "dual"){
+    articleHtml = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">`;
+    animal.article.articles.forEach(art => {
+      articleHtml += `
+        <div class="bg-white rounded-xl p-3.5 border-2 border-teal-200 shadow-sm">
+          <span class="inline-block px-2 py-0.5 bg-teal-100 text-teal-900 font-black text-[11px] rounded mb-1.5">${art.press}</span>
+          <h5 class="text-xs font-black text-slate-900 mb-2 leading-snug">${art.headline}</h5>
+          <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line">${art.content}</p>
+        </div>
+      `;
+    });
+    articleHtml += `</div>`;
+  } else {
+    articleHtml = `
+      <div class="bg-white rounded-xl p-4 border border-teal-200 text-xs text-slate-700 leading-relaxed mb-4 whitespace-pre-line" id="mSingleArticleView">
+        ${animal.article.content}
+      </div>
+    `;
+  }
+
+  area.innerHTML = `
+    <div class="flex items-center justify-between border-b border-teal-200 pb-3 mb-3">
+      <div>
+        <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-teal-200 text-teal-800">${animal.emoji} ${animal.name}</span>
+        <h4 class="text-base font-extrabold text-teal-950 mt-1" id="mCurrentTitle">${animal.article.title}</h4>
+      </div>
+      <button type="button" id="closeMissionBtn" class="text-xs text-slate-400 hover:text-slate-700 font-bold cursor-pointer">✕ 닫기</button>
+    </div>
+
+    ${articleHtml}
+
+    <div class="bg-white rounded-xl p-4 border border-teal-200 mb-4">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="bg-teal-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">1단계</span>
+        <h5 class="text-xs font-bold text-teal-950">${animal.article.m1Title}</h5>
+      </div>
+      <div id="mStep1UIBox"></div>
+    </div>
+
+    <div class="bg-white rounded-xl p-4 border border-teal-200 mb-4">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">2단계</span>
+        <h5 class="text-xs font-bold text-teal-950">${animal.article.m2Title}</h5>
+      </div>
+      <p class="text-[11px] text-slate-500 mb-3">${animal.article.guide}</p>
+      ${step2FormHtml}
+    </div>
+
+    <button type="button" id="execSurgeryBtn" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold rounded-xl text-xs shadow-md transition cursor-pointer">
+      🎉 오염 기사 수술 완료 및 인증하기
+    </button>
+  `;
+
+  renderStep1UI(animal);
+
+  el("closeMissionBtn").onclick = () => area.classList.add("hidden");
+  el("execSurgeryBtn").onclick = completeCurrentMission;
+  area.scrollIntoView({ behavior: "smooth" });
+}
+
+function renderStep1UI(animal){
+  const ui = el("mStep1UIBox");
+  if(!ui) return;
+  ui.innerHTML = "";
+  const art = animal.article;
+
+  if(art.actionType === "vocab"){
+    let html = `<p class='text-[11px] text-slate-500 mb-2'>단어를 터치하여 2단계 입력창에 바로 활용하세요:</p><div class='flex flex-wrap gap-1.5'>`;
+    art.vocabOptions.forEach(v => {
+      html += `<button type='button' class='px-2.5 py-1 bg-teal-100 hover:bg-teal-200 text-teal-800 rounded-lg text-xs font-bold transition' onclick='insertVocabToChick("${v.term}", "${v.easy}")'>${v.term} ➔ ${v.easy} ➕</button>`;
+    });
+    html += `</div>`;
+    ui.innerHTML = html;
+  }
+  else if(art.actionType === "hamsterFact"){
+    let fHtml = `<p class='text-[11px] text-slate-500 mb-2'>제목에 누락된 핵심 팩트를 선택하면 제목 작성 힌트 칩으로 자동 연결됩니다:</p><div class='space-y-1.5'>`;
+    art.factOptions.forEach((f, idx) => {
+      fHtml += `<label class='flex items-center gap-2 p-2 bg-slate-50 rounded-lg border text-xs cursor-pointer hover:bg-teal-50'>
+                  <input type='checkbox' class='accent-teal-600 hamster-fact-check' value='${f}' onchange='updateHamsterFactChips()'> ${f}
+                </label>`;
+    });
+    fHtml += `</div>`;
+    ui.innerHTML = fHtml;
+  }
+  else if(art.actionType === "turtleSummary"){
+    let sHtml = `<div class='space-y-1.5'>`;
+    art.summaryPoints.forEach((p, idx) => {
+      sHtml += `<button type='button' onclick='fillTurtlePoint(${idx+1}, "${p}")' class='w-full text-left p-2 bg-teal-50/70 hover:bg-teal-100 border border-teal-200 rounded-lg text-xs font-medium text-teal-950 transition flex justify-between'>
+                  <span>📌 ${p}</span><span class='text-[10px] text-teal-600 font-bold'>채우기 ➕</span>
+                </button>`;
+    });
+    sHtml += `</div>`;
+    ui.innerHTML = sHtml;
+  }
+  else if(art.actionType === "foxSearch"){
+    ui.innerHTML = `
+      <p class='text-[11px] text-slate-500 mb-2'>기사 본문의 흐릿한 출처를 수색하고 원클릭으로 본문을 수정하세요:</p>
+      <div class='flex gap-2 mb-2'>
+        <input type='text' id='foxSearchInput' placeholder='검색어 입력 (예: 청소년 주식 계좌 통계)' class='flex-1 p-2 border rounded-lg text-xs bg-slate-50 focus:bg-white'>
+        <button type='button' id='foxSearchBtn' class='px-3 py-2 bg-teal-600 text-white font-bold rounded-lg text-xs cursor-pointer'>수색 🔍</button>
+      </div>
+      <div id='foxSearchResult' class='text-[11px] p-2.5 rounded-lg bg-teal-50 border border-teal-200 text-teal-900 hidden'></div>`;
+    el("foxSearchBtn").onclick = runFoxSearch;
+  }
+  else if(art.actionType === "sheepOpinion"){
+    ui.innerHTML = `
+      <p class='text-[11px] text-slate-500 mb-2'>댓글에 휩쓸리지 않도록 댓글창을 가렸습니다. 내 입장을 먼저 체크하세요:</p>
+      <div class='flex gap-2'>
+        <button type='button' onclick='this.className="flex-1 p-2 rounded-lg bg-teal-600 text-white font-bold text-xs cursor-pointer"' class='flex-1 p-2 border rounded-lg text-xs bg-white text-slate-700 cursor-pointer'>찬성 (처벌 연령 하향)</button>
+        <button type='button' onclick='this.className="flex-1 p-2 rounded-lg bg-teal-600 text-white font-bold text-xs cursor-pointer"' class='flex-1 p-2 border rounded-lg text-xs bg-white text-slate-700 cursor-pointer'>반대 (교화 시스템 우선)</button>
+      </div>`;
+  }
+  else if(art.actionType === "owlView"){
+    ui.innerHTML = `
+      <div class='p-2.5 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-900'>
+        <b>💡 발견된 소외 계층:</b> "웹툰을 직접 결제해 보는 청소년 독자"와 "생존권을 위협받는 신인 작가"
+      </div>`;
+  }
+  else if(art.actionType === "pandaDualCheck"){
+    ui.innerHTML = `
+      <div class='grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs'>
+        <div class='p-2.5 bg-slate-50 rounded-lg border'>
+          <b class='text-teal-950 block mb-1'>언론사 A 프레임:</b>
+          <span class='text-slate-600'>교권 침해 방지, 면학 분위기 조성</span>
+        </div>
+        <div class='p-2.5 bg-slate-50 rounded-lg border'>
+          <b class='text-teal-950 block mb-1'>언론사 B 프레임:</b>
+          <span class='text-slate-600'>청소년 통신의 자유 보장, 과잉 규제 비판</span>
+        </div>
+      </div>`;
+  }
+  else {
+    ui.innerHTML = `<p class='text-xs text-slate-600'>기사 본문의 사실 요건을 확인하고 2단계 미션에 반영하세요.</p>`;
+  }
+}
+
+window.updateHamsterFactChips = function(){
+  const container = el("hFactChipContainer");
+  if(!container) return;
+  const checks = document.querySelectorAll(".hamster-fact-check:checked");
+  if(checks.length === 0){
+    container.innerHTML = `<span class="text-slate-400">1단계에서 고른 팩트가 제목 힌트로 연결됩니다</span>`;
+    return;
+  }
+  let chips = `<span class="text-teal-700 font-bold mr-1">제목에 넣을 팩트 칩:</span>`;
+  checks.forEach(c => {
+    chips += `<span class="bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full border border-teal-200">${c.value.substring(0, 16)}...</span>`;
+  });
+  container.innerHTML = chips;
+};
+
+window.insertVocabToChick = function(term, easy){
+  const target = el("mChickEasyInput");
+  if(target){
+    target.value += `${term} ➔ ${easy} `;
+    target.focus();
+  }
+};
+
+window.fillTurtlePoint = function(num, text){
+  const target = el(`mPointInput${num}`);
+  if(target){
+    target.value = text;
+  }
+};
+
+function runFoxSearch(){
+  const val = el("foxSearchInput").value.trim();
+  const res = el("foxSearchResult");
+  res.classList.remove("hidden");
+  if(val.includes("주식") || val.includes("통계") || val.includes("기관") || val.includes("금융")){
+    res.innerHTML = `
+      <div class="flex items-center justify-between">
+        <span><b>[수색 성공]</b> 조사 기관: <b>금융감독원</b> / 통계: 3년 새 <b>2.1배 증가</b></span>
+        <button type="button" onclick="replaceFoxBlanks()" class="px-2 py-1 bg-amber-500 text-white rounded text-[10px] font-bold cursor-pointer">본문에 자동 삽입 ➔</button>
+      </div>
+    `;
+  } else {
+    res.innerHTML = "<b>[수색 힌트]</b> '금융감독원' 또는 '청소년 주식 통계'를 입력하세요.";
+  }
+}
+
+window.replaceFoxBlanks = function(){
+  const bOrg = el("foxBlankOrg");
+  const bNum = el("foxBlankNum");
+  if(bOrg) bOrg.outerHTML = "<b class='text-emerald-700 underline'>금융감독원</b>";
+  if(bNum) bNum.outerHTML = "<b class='text-emerald-700 underline'>약 2.1배</b>";
+  alert("기사 본문의 빈칸이 공식 출처와 정확한 데이터로 자동 치환되었습니다!");
+};
+
+function completeCurrentMission(){
+  const animal = state.currentMissionAnimal;
+  if(!animal) return;
+
+  let fixedHeadline = animal.article.title;
+  let fixedContent = "";
+
+  if(animal.id === "HAMSTER"){
+    const titleVal = el("mHamsterTitleInput") ? el("mHamsterTitleInput").value.trim() : "";
+    if(titleVal.length < 5){
+      alert("정직한 새 헤드라인을 최소 5자 이상 작성해 주세요!");
+      return;
+    }
+    fixedHeadline = `[정직한 제목] ${titleVal}`;
+    fixedContent = `수술 결과: 자극적인 낚시 제목을 걷어내고 본문의 핵심 사실을 기반으로 재구성했습니다.\n\n▶ 복원된 헤드라인: "${titleVal}"\n▶ 본문 요지: 호주 SNS 제한 법안의 실제 대상은 학생 개인이 아닌 플랫폼 기업이며, 과징금은 450억 원에 달합니다.`;
+  }
+  else if(animal.id === "TURTLE" || animal.id === "PANDA"){
+    const p1 = el("mPointInput1") ? el("mPointInput1").value.trim() : "";
+    const p2 = el("mPointInput2") ? el("mPointInput2").value.trim() : "";
+    const p3 = el("mPointInput3") ? el("mPointInput3").value.trim() : "";
+    if(!p1 && !p2 && !p3){
+      alert("3대 핵심 포인트 중 최소 1개 이상을 입력해 주세요!");
+      return;
+    }
+    fixedHeadline = `[핵심 브리핑] ${animal.article.title}`;
+    fixedContent = `📌 바쁜 독자를 위한 핵심 3포인트 요약 리포트:\n① ${p1 || "내용 미입력"}\n② ${p2 || "내용 미입력"}\n③ ${p3 || "내용 미입력"}`;
+  }
+  else if(animal.id === "OWL"){
+    const quoteVal = el("mOwlQuoteInput") ? el("mOwlQuoteInput").value.trim() : "";
+    if(quoteVal.length < 5){
+      alert("소외된 이해관계자의 목소리를 최소 한 문장 이상 작성해 주세요!");
+      return;
+    }
+    fixedHeadline = `[관점 균형 복원] ${animal.article.title}`;
+    fixedContent = `${animal.article.content}\n\n[반면, 다른 한편에서는...]\n"${quoteVal}"`;
+  }
+  else if(animal.id === "DOLPHIN"){
+    const reasonVal = el("mDolphinReasonInput") ? el("mDolphinReasonInput").value.trim() : "";
+    const cautionVal = el("mDolphinCautionInput") ? el("mDolphinCautionInput").value.trim() : "";
+    if(!reasonVal){
+      alert("공유하는 이유를 입력해 주세요!");
+      return;
+    }
+    fixedHeadline = `[책임 공유 카드] ${animal.article.title}`;
+    fixedContent = `💌 친구들을 위한 큐레이션 브리핑:\n• 공유하는 이유: ${reasonVal}\n• 전달 시 주의할 점: ${cautionVal || "출처를 반드시 확인하고 읽어줘!"}\n\n팩트 기반의 안전한 소통을 위해 검증 후 공유합니다.`;
+  }
+  else if(animal.id === "CHICK"){
+    const easyVal = el("mChickEasyInput") ? el("mChickEasyInput").value.trim() : "";
+    if(easyVal.length < 5){
+      alert("쉬운 일상어로 변환한 문장을 작성해 주세요!");
+      return;
+    }
+    fixedHeadline = `[14세 쉬운말 뉴스] ${animal.article.title}`;
+    fixedContent = `어려운 시사 한자어를 친절하게 다시 쓴 뉴스:\n\n${easyVal}`;
+  }
+  else {
+    const genericVal = el("mGenericInput") ? el("mGenericInput").value.trim() : "";
+    if(genericVal.length < 5){
+      alert("기사를 개선한 내용을 최소 한 문장 이상 입력해 주세요!");
+      return;
+    }
+    fixedHeadline = `[정화 복원 완료] ${animal.article.title}`;
+    fixedContent = genericVal;
+  }
+
+  if(animal.id === state.myAnimalId && !state.unlockedAll){
+    state.unlockedAll = true;
+  }
+
+  state.completedMissions[animal.id] = {
+    headline: fixedHeadline,
+    content: fixedContent,
+    date: new Date().toLocaleDateString()
+  };
+  saveStateToStorage();
+
+  const combinedAnimalName = animal.name.split(" ").slice(1).join("");
+  el("certAnimalLabel").innerText = `${animal.emoji} ${combinedAnimalName} 수술실`;
+  el("certOldTitle").innerText = animal.article.title || "기존 오염 기사 헤드라인";
+  el("certNewHeadline").innerText = fixedHeadline;
+  el("certFixedContent").innerText = fixedContent;
+  el("certResearcher").innerText = state.userName || "수석 연구원";
+
+  const now = new Date();
+  el("certDate").innerText = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+
+  el("missionActionArea").classList.add("hidden");
+  el("certModal").classList.remove("hidden");
+  renderAnimalHub();
+}
+
+function closeCertModal(){
+  el("certModal").classList.add("hidden");
+}
+
+function downloadCertImage(){
+  const target = el("surgeryCertCard");
+  const userName = state.userName || "연구원";
+  const animalName = state.currentMissionAnimal ? state.currentMissionAnimal.name.split(" ").slice(1).join("") : "기사";
+
+  document.fonts.ready.then(() => {
+    html2canvas(target, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: null,
+      scrollX: 0,
+      scrollY: 0,
+      onclone: (clonedDoc) => {
+        const clonedCert = clonedDoc.getElementById("surgeryCertCard");
+        if(clonedCert){
+          clonedCert.style.letterSpacing = "0px";
+          clonedCert.querySelectorAll("*").forEach(node => {
+            node.style.letterSpacing = "0px";
+          });
+        }
+      }
+    }).then(canvas => {
+      const link = document.createElement("a");
+      link.download = `정화기사인증_${userName}_${animalName}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }).catch(err => {
+      alert("인증서 저장 중 오류가 발생했습니다.");
+      console.error(err);
+    });
+  });
+}
+
+function resetAll(){
+  localStorage.removeItem(STORAGE_KEY);
+  state.timeLeft = 300;
+  state.distance = 45;
+  state.closeReasons = [];
+  state.farReasons = [];
+  state.frequency = "";
+  state.media = [];
+  state.weakness = "";
+  state.answers = {};
+  state.unlockedAll = false;
+  state.completedMissions = {};
+  el("distanceRange").value = 45;
+  updateDistanceUI();
+  renderPills();
+  renderQuestions();
+  updateProgress();
+  checkSubmitValid();
+  goToStep(0);
+}
+
+function initApp(){
+  el("startBtn").addEventListener("click", () => startApp(true));
+  el("startNoTimerBtn").addEventListener("click", () => startApp(false));
+
+  el("distanceRange").addEventListener("input", updateDistanceUI);
+
+  el("step1HomeBtn").addEventListener("click", () => goToStep(0));
+  el("step1NextBtn").addEventListener("click", () => goToStep(2));
+
+  el("step2BackBtn").addEventListener("click", () => goToStep(1));
+  el("step2NextBtn").addEventListener("click", () => goToStep(3));
+
+  el("step3BackBtn").addEventListener("click", () => goToStep(2));
+  el("step3NextBtn").addEventListener("click", () => goToStep(4));
+
+  el("step4BackBtn").addEventListener("click", () => goToStep(3));
+  el("step4NextBtn").addEventListener("click", () => goToStep(5));
+
+  el("step5BackBtn").addEventListener("click", () => goToStep(4));
+  el("submitBtn").addEventListener("click", diagnoseResult);
+
+  el("downloadCardBtn").addEventListener("click", downloadProfileCard);
+  el("copyCardBtn").addEventListener("click", () => copyCanvasToClipboard(el("shareProfileCard"), "🪪 ID 카드가 클립보드에 복사되었습니다!"));
+
+  el("downloadCertBtn").addEventListener("click", downloadCertImage);
+  el("copyCertBtn").addEventListener("click", () => copyCanvasToClipboard(el("surgeryCertCard"), "📰 정화 기사 인증서가 클립보드에 복사되었습니다!"));
+  el("closeCertBtn").addEventListener("click", closeCertModal);
+
+  el("resetAllBtn").addEventListener("click", resetAll);
+
+  const restored = loadStateFromStorage();
+  if(restored && state.myAnimalId && Object.keys(state.answers).length === 16){
+    const matched = animals.find(a => a.id === state.myAnimalId) || animals[0];
+    state.matchedAnimal = matched;
+    renderStep6(matched, computeNormalizedScores());
+    goToStep(6);
+  } else {
+    renderPills();
+    renderQuestions();
+    updateProgress();
+    updateDistanceUI();
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initApp);
+} else {
+  initApp();
+}
+</script>
+</body>
+</html>
